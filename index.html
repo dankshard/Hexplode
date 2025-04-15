@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hexagon Particle Hover</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+<canvas id="hexCanvas"></canvas>
+
+<script>
+const canvas = document.getElementById('hexCanvas');
+const ctx = canvas.getContext('2d');
+
+let width = window.innerWidth;
+let height = window.innerHeight;
+canvas.width = width;
+canvas.height = height;
+
+let hexRadius = 80;
+let particles = [];
+let splitting = false;
+
+function createHexagonParticles(cx, cy, radius) {
+  const points = [];
+  for (let i = 0; i < 6; i++) {
+    let angle = Math.PI / 3 * i;
+    points.push({
+      x: cx + radius * Math.cos(angle),
+      y: cy + radius * Math.sin(angle)
+    });
+  }
+
+  particles = [];
+  for (let i = 0; i < points.length; i++) {
+    let a = points[i];
+    let b = points[(i + 1) % points.length];
+
+    let numParticles = 30;
+    for (let j = 0; j <= numParticles; j++) {
+      let t = j / numParticles;
+      let x = a.x * (1 - t) + b.x * t;
+      let y = a.y * (1 - t) + b.y * t;
+
+      particles.push({
+        homeX: x,
+        homeY: y,
+        x: x,
+        y: y,
+        vx: 0,
+        vy: 0
+      });
+    }
+  }
+}
+
+function updateParticles() {
+  for (let p of particles) {
+    if (splitting) {
+      p.vx += (Math.random() - 0.5) * 0.2;
+      p.vy += (Math.random() - 0.5) * 0.2;
+      p.x += p.vx;
+      p.y += p.vy;
+    } else {
+      p.vx = (p.homeX - p.x) * 0.1;
+      p.vy = (p.homeY - p.y) * 0.1;
+      p.x += p.vx;
+      p.y += p.vy;
+    }
+  }
+}
+
+function drawParticles() {
+  ctx.clearRect(0, 0, width, height);
+  for (let p of particles) {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 2, 0, 2 * Math.PI);
+    ctx.fillStyle = 'black'; // Black particles
+    ctx.fill();
+  }
+}
+
+function animate() {
+  updateParticles();
+  drawParticles();
+  requestAnimationFrame(animate);
+}
+
+createHexagonParticles(width / 2, height / 2, hexRadius);
+animate();
+
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  const dx = mouseX - width / 2;
+  const dy = mouseY - height / 2;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  splitting = distance < hexRadius + 10;
+});
+
+canvas.addEventListener('mouseleave', () => {
+  splitting = false;
+});
+
+window.addEventListener('resize', () => {
+  width = window.innerWidth;
+  height = window.innerHeight;
+  canvas.width = width;
+  canvas.height = height;
+  createHexagonParticles(width / 2, height / 2, hexRadius);
+});
+</script>
+</body>
+</html>
