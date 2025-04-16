@@ -2,17 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Big Hexagon Particle Hover</title>
+  <title>Hexagon Particle Hover</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: white; /* ✅ White background */
+      background: transparent; /* ✅ transparent background */
       overflow: hidden;
       height: 100%;
     }
     canvas {
       display: block;
+      background: transparent; /* ✅ canvas background also transparent */
     }
   </style>
 </head>
@@ -28,7 +29,7 @@ let height = window.innerHeight;
 canvas.width = width;
 canvas.height = height;
 
-let hexRadius = 320; // ✅ 4x original size
+let hexRadius = 320; // 4x larger hexagon
 let particles = [];
 let splitting = false;
 
@@ -47,7 +48,7 @@ function createHexagonParticles(cx, cy, radius) {
     let a = points[i];
     let b = points[(i + 1) % points.length];
 
-    let numParticles = 60; // more particles = smoother edges
+    let numParticles = 60;
     for (let j = 0; j <= numParticles; j++) {
       let t = j / numParticles;
       let x = a.x * (1 - t) + b.x * t;
@@ -85,7 +86,7 @@ function drawParticles() {
   ctx.clearRect(0, 0, width, height);
   for (let p of particles) {
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 4, 0, 2 * Math.PI); // ✅ Bigger particles
+    ctx.arc(p.x, p.y, 4, 0, 2 * Math.PI); // larger particles
     ctx.fillStyle = 'black';
     ctx.fill();
   }
@@ -100,7 +101,7 @@ function animate() {
 createHexagonParticles(width / 2, height / 2, hexRadius);
 animate();
 
-// Hover detection
+// Hover interaction
 canvas.addEventListener('mousemove', (e) => {
   const rect = canvas.getBoundingClientRect();
   const mouseX = e.clientX - rect.left;
